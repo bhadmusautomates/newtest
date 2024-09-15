@@ -12,23 +12,27 @@ jobs:
         - name: Checkout repository
           uses: actions/checkout@v4
 
-        - name: List Content
+        - name: Set up node
+          uses: actions/setup-node@v3
+          with:
+            node-version: '18'
+
+        - name: Install Dependencies
           run: |
-            echo "Check Collection"
-            ls -la  
-            echo "install dependencies"
-            npm i -g newman newman-reporter-htmlextra
+            npm install
             echo "check dependencies version"
-            newman --version
-            newman-reporter-htmlextra --version
+            npx newman --version
+            npx newman-reporter-htmlextra --version
 
         - name: Run Postman collection
           run: |
-            echo "run test"
-            newman run collection.json --reporters cli,junit --reporter-junit-export ./newman/results.xml
+            echo "create report directory"
+            mkdir -p ./newman
+            npx newman run collection.json -r cli,htmlextra --reporter-htmlextra-export ./newman/results.html
 
         - name: Upload Test Results
           uses: actions/upload-artifact@v3
           with:
             name: postman-test-results
-            path: ./newman/results.xml
+            path: ./newman/results.html
+    
